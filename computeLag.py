@@ -35,7 +35,7 @@ def rectangularOutput(arr):
     :param arr: matrix
     :return: write in rectangular array excluding [[and ]]
     """
-    outArrStr=""
+    outArrStr="\n"
     for row in arr:
         rs=" ".join(map(str,row))
         outArrStr+=rs+"\n"
