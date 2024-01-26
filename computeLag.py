@@ -3,7 +3,8 @@ import numpy as np
 import random
 from copy import deepcopy
 from datetime import datetime
-
+from multiprocessing import Pool
+from pathlib import Path
 random.seed(198)
 
 N = 30  # length of one direction
@@ -11,7 +12,7 @@ J = 1
 
 T = 0.1
 beta = 1 / T
-
+part=0
 # init s
 tInitStart = datetime.now()
 sVals = [-1, 1]
@@ -25,32 +26,46 @@ print("init time: ", tInitEnd - tInitStart)
 tMCStart = datetime.now()
 flipNum = 0
 notFlipNum = 0
-maxStep = 100 * N ** 2
+maxStep = 100
+totalLoop=maxStep*N**2
+procNum=48
+def rectangularOutput(arr):
+    """
 
+    :param arr: matrix
+    :return: write in rectangular array excluding [[and ]]
+    """
+    outArrStr=""
+    for row in arr:
+        rs=" ".join(map(str,row))
+        outArrStr+=rs+"\n"
+    return outArrStr
 
 class computationData:  # holding computational results to be dumped using pickle
     def __init__(self):
         self.sAll = []  # list
-
+        self.E=[]
+indsAll=[[a,b] for a in range(0,N) for b in range(0,N)]
 
 record = computationData()
-for tau in range(0, maxStep):
+for tau in range(0, totalLoop):
     print("step " + str(tau))
     tOneMCStepStart = datetime.now()
 
     # flip s
     a = random.randint(0, N - 1)
     b = random.randint(0, N - 1)
-    sLeft = sCurr[a, (b - 1) % N]
-    sRight = sCurr[a, (b + 1) % N]
-    sUp = sCurr[(a - 1) % N, b]
-    sDown = sCurr[(a + 1) % N, b]
+    sNext=deepcopy(sCurr)
+    sLeft = sNext[a, (b - 1) % N]
+    sRight = sNext[a, (b + 1) % N]
+    sUp = sNext[(a - 1) % N, b]
+    sDown = sNext[(a + 1) % N, b]
 
-    DeltaE = 2 * J * sCurr[a, b] * (sLeft + sRight + sUp + sDown)
+    DeltaE = 2 * J * sNext[a, b] * (sLeft + sRight + sUp + sDown)
     print("Delta E=" + str(DeltaE))
     if DeltaE <= 0:
         print("Delta E<=0")
-        sCurr[a, b] *= -1
+        sNext[a, b] *= -1
         print("flipped")
         flipNum += 1
     else:
@@ -58,14 +73,28 @@ for tau in range(0, maxStep):
         print("r=" + str(r))
         print("exp(-beta*Delta E)=" + str(np.exp(-beta * DeltaE)))
         if r < np.exp(-beta * DeltaE):
-            sCurr[a, b] *= -1
+            sNext[a, b] *= -1
             print("flipped")
             flipNum += 1
         else:
             print("not flipped")
             notFlipNum += 1
-    record.sAll.append(sCurr)
-    print("sCurr=" + str(sCurr))
+
+    record.sAll.append(sNext)
+    sCurr=deepcopy(sNext)
+    def energyAtab(ab):
+        a,b=ab
+        sLeft = sCurr[a, (b - 1) % N]
+        sRight = sCurr[a, (b + 1) % N]
+        sUp = sCurr[(a - 1) % N, b]
+        sDown = sCurr[(a + 1) % N, b]
+        return -J/2*sCurr[a,b]*(sLeft+sRight+sUp+sDown)
+
+    pool0=Pool(procNum)
+    retEAll=pool0.map(energyAtab,indsAll)
+    ETot=np.sum(retEAll)
+    record.E.append(ETot)
+    print("sCurr=" + str(rectangularOutput(sCurr)))
     tOneMCStepEnd = datetime.now()
     print("one step MC :", tOneMCStepEnd - tOneMCStepStart)
     print("=====================================")
@@ -76,7 +105,8 @@ tMCEnd = datetime.now()
 print("MC time: ", tMCEnd - tMCStart)
 print("flip num: " + str(flipNum))
 print("no flip num: " + str(notFlipNum))
-
+###place holder
+###place holder
 outPklFileName = "T" + str(T) + "step" + str(maxStep) + "out.pkl"
 with open(outPklFileName, "wb") as fptr:
     pickle.dump(record, fptr, pickle.HIGHEST_PROTOCOL)
