@@ -6,9 +6,9 @@ from pathlib import Path
 
 lagFileName="computeLag"
 suffix=".py"
-part=1
+part=0
 
-TemperaturesAll=[0.1+0.05*n  for n in range(0,8)]
+TemperaturesAll=[1+0.1*n  for n in range(0,21)]
 randSeedAll=[1890]
 fileIn=open(lagFileName+suffix,"r")
 
@@ -24,7 +24,7 @@ for l in range(0,len(contents)):
     if re.findall("^T\s*=\s*(-?\d+(\.\d+)?)",line):
         lineTemperature=l
         # print(lineTemperature)
-    if re.findall("^random\.seed",line):
+    if re.findall("^randseed\s*=\s*\d+",line):
         lineRandSeed=l
         # print(lineRandSeed)
     if re.findall("^maxStep\s*=\s*\d+",line):
@@ -38,7 +38,7 @@ counter=0
 for TVal in TemperaturesAll:
     for rs in randSeedAll:
         contents[lineTemperature] = "T=" + str(TVal) + "\n"
-        contents[lineRandSeed] = "random.seed(" + str(rs) + ")\n"
+        contents[lineRandSeed] = "randseed =(" + str(rs) + ")\n"
         contents[linePart] = "part=" + str(part) + "\n"
         contents[lineMaxStep] = "maxStep=" + str(setMaxStep) + "\n"
         contents[-5] = 'outDir="./part"+str(part)+"/"\n'
@@ -68,7 +68,7 @@ for TVal in TemperaturesAll:
         bashContents.append("#SBATCH --mem=40GB\n")
         bashContents.append("#SBATCH -o outlag" + str(counter) + ".out\n")
         bashContents.append("#SBATCH -e outlag" + str(counter) + ".err\n")
-        bashContents.append("cd /home/cywanag/liuxi/script/zhihu2dIsing\n")
+        bashContents.append("cd /home/cywanag/liuxi/Documents/pyCode/zhihu2dIsing\n")
         bashContents.append(
             "python3 computeLag" + str(counter) + "part" + str(part) + "randseed" + str(rs) + ".py > part" + str(
                 part) + "rec" + str(

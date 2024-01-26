@@ -5,9 +5,12 @@ from copy import deepcopy
 from datetime import datetime
 from multiprocessing import Pool
 from pathlib import Path
-random.seed(198)
 
-N = 30  # length of one direction
+
+randseed = 198
+random.seed(randseed)
+
+N = 20  # length of one direction
 J = 1
 
 T = 0.1
@@ -46,7 +49,8 @@ class computationData:  # holding computational results to be dumped using pickl
         self.sAll = []  # list
         self.E=[]
 indsAll=[[a,b] for a in range(0,N) for b in range(0,N)]
-
+print("T="+str(T))
+print("randseed="+str(randseed))
 record = computationData()
 for tau in range(0, totalLoop):
     print("step " + str(tau))
