@@ -33,7 +33,7 @@ for l in range(0,len(contents)):
         linePart=l
 
 #generate computing files
-setMaxStep=1000
+setMaxStep=500
 counter=0
 for TVal in TemperaturesAll:
     for rs in randSeedAll:

@@ -10,7 +10,7 @@ from pathlib import Path
 randseed = 198
 random.seed(randseed)
 
-N = 20  # length of one direction
+N = 15  # length of one direction
 J = 1
 
 T = 0.1
