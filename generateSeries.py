@@ -8,7 +8,7 @@ lagFileName="computeLag"
 suffix=".py"
 part=0
 
-TemperaturesAll=[1+0.1*n  for n in range(0,21)]
+TemperaturesAll=[1.2+0.1*n  for n in range(0,31)]
 randSeedAll=[1890]
 fileIn=open(lagFileName+suffix,"r")
 
@@ -33,7 +33,7 @@ for l in range(0,len(contents)):
         linePart=l
 
 #generate computing files
-setMaxStep=500
+setMaxStep=10000
 counter=0
 for TVal in TemperaturesAll:
     for rs in randSeedAll:

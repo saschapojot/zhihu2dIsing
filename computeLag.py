@@ -10,7 +10,7 @@ from pathlib import Path
 randseed = 198
 random.seed(randseed)
 
-N = 15  # length of one direction
+N = 20  # length of one direction
 J = 1
 
 T = 0.1
@@ -24,14 +24,27 @@ for i in range(0, N):
     for j in range(0, N):
         sCurr[i, j] = sVals[random.randint(0, 1)]
 
-tInitEnd = datetime.now()
-print("init time: ", tInitEnd - tInitStart)
+procNum=48
+# def energyAtab(ab):
+#     a, b = ab
+#     sLeft = sCurr[a, (b - 1) % N]
+#     sRight = sCurr[a, (b + 1) % N]
+#     sUp = sCurr[(a - 1) % N, b]
+#     sDown = sCurr[(a + 1) % N, b]
+#     return -J / 2 * sCurr[a, b] * (sLeft + sRight + sUp + sDown)
+# pool0=Pool(procNum)
+# indsAll=[[a,b] for a in range(0,N) for b in range(0,N)]
+# retEAll=pool0.map(energyAtab,indsAll)
+# ECurr=np.sum(retEAll)
+tInitEnd=datetime.now()
+print("init time: ",tInitEnd-tInitStart)
+
 tMCStart = datetime.now()
 flipNum = 0
 notFlipNum = 0
 maxStep = 100
 totalLoop=maxStep*N**2
-procNum=48
+
 def rectangularOutput(arr):
     """
 
@@ -86,7 +99,9 @@ for tau in range(0, totalLoop):
 
 
     sCurr=deepcopy(sNext)
+    # ECurr+=DeltaE
     record.sAll.append(sCurr)
+    # record.E.append(ECurr)
     # def energyAtab(ab):
     #     a,b=ab
     #     sLeft = sCurr[a, (b - 1) % N]
