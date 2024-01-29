@@ -48,13 +48,13 @@ class computationData:  # holding computational results to be dumped using pickl
     def __init__(self):
         self.sAll = []  # list
         self.E=[]
-indsAll=[[a,b] for a in range(0,N) for b in range(0,N)]
+# indsAll=[[a,b] for a in range(0,N) for b in range(0,N)]
 print("T="+str(T))
 print("randseed="+str(randseed))
 record = computationData()
 for tau in range(0, totalLoop):
-    print("step " + str(tau))
-    tOneMCStepStart = datetime.now()
+    # print("step " + str(tau))
+    # tOneMCStepStart = datetime.now()
 
     # flip s
     a = random.randint(0, N - 1)
@@ -66,42 +66,43 @@ for tau in range(0, totalLoop):
     sDown = sNext[(a + 1) % N, b]
 
     DeltaE = 2 * J * sNext[a, b] * (sLeft + sRight + sUp + sDown)
-    print("Delta E=" + str(DeltaE))
+    # print("Delta E=" + str(DeltaE))
     if DeltaE <= 0:
-        print("Delta E<=0")
+        # print("Delta E<=0")
         sNext[a, b] *= -1
-        print("flipped")
+        # print("flipped")
         flipNum += 1
     else:
         r = random.random()
-        print("r=" + str(r))
-        print("exp(-beta*Delta E)=" + str(np.exp(-beta * DeltaE)))
+        # print("r=" + str(r))
+        # print("exp(-beta*Delta E)=" + str(np.exp(-beta * DeltaE)))
         if r < np.exp(-beta * DeltaE):
             sNext[a, b] *= -1
-            print("flipped")
+            # print("flipped")
             flipNum += 1
         else:
-            print("not flipped")
+            # print("not flipped")
             notFlipNum += 1
 
-    record.sAll.append(sNext)
-    sCurr=deepcopy(sNext)
-    def energyAtab(ab):
-        a,b=ab
-        sLeft = sCurr[a, (b - 1) % N]
-        sRight = sCurr[a, (b + 1) % N]
-        sUp = sCurr[(a - 1) % N, b]
-        sDown = sCurr[(a + 1) % N, b]
-        return -J/2*sCurr[a,b]*(sLeft+sRight+sUp+sDown)
 
-    pool0=Pool(procNum)
-    retEAll=pool0.map(energyAtab,indsAll)
-    ETot=np.sum(retEAll)
-    record.E.append(ETot)
-    print("sCurr=" + str(rectangularOutput(sCurr)))
-    tOneMCStepEnd = datetime.now()
-    print("one step MC :", tOneMCStepEnd - tOneMCStepStart)
-    print("=====================================")
+    sCurr=deepcopy(sNext)
+    record.sAll.append(sCurr)
+    # def energyAtab(ab):
+    #     a,b=ab
+    #     sLeft = sCurr[a, (b - 1) % N]
+    #     sRight = sCurr[a, (b + 1) % N]
+    #     sUp = sCurr[(a - 1) % N, b]
+    #     sDown = sCurr[(a + 1) % N, b]
+    #     return -J/2*sCurr[a,b]*(sLeft+sRight+sUp+sDown)
+    #
+    # pool0=Pool(procNum)
+    # retEAll=pool0.map(energyAtab,indsAll)
+    # ETot=np.sum(retEAll)
+    # record.E.append(ETot)
+    # print("sCurr=" + str(rectangularOutput(sCurr)))
+    # tOneMCStepEnd = datetime.now()
+    # print("one step MC :", tOneMCStepEnd - tOneMCStepStart)
+    # print("=====================================")
     if tau % 5000 == 0:
         print("flip " + str(tau))
 
