@@ -60,7 +60,7 @@ specificHeatAll=[]
 lastNum=1000000#use the last lastNum configurations
 separation=400#separation of the used configurations
 
-for i in range(0,10):
+for i in range(0,len(pklFileNames)):
     inPklFileName = pklFileNames[i]
     tLoadStart = datetime.now()
     with open(inPklFileName, "rb") as fptr:
