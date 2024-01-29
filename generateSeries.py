@@ -38,7 +38,7 @@ counter=0
 for TVal in TemperaturesAll:
     for rs in randSeedAll:
         contents[lineTemperature] = "T=" + str(TVal) + "\n"
-        contents[lineRandSeed] = "randseed =(" + str(rs) + ")\n"
+        # contents[lineRandSeed] = "randseed =(" + str(rs) + ")\n"
         contents[linePart] = "part=" + str(part) + "\n"
         contents[lineMaxStep] = "maxStep=" + str(setMaxStep) + "\n"
         contents[-5] = 'outDir="./part"+str(part)+"/"\n'
