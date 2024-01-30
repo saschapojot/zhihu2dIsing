@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import glob
 import re
-
+from multiprocessing import Pool
 #This script computes avgerage value of s
 #This script computes magnetic susceptibility
 #This script computes specific heat
@@ -27,6 +27,9 @@ for file in glob.glob(inDir+"*.pkl"):
     matchT = re.search(r"T(-?\d+(\.\d+)?)J", file)
     if matchT:
         TValsAll.append(matchT.group(1))
+    matchJ=re.search(r"J(-?\d+(\.\d+)?)rand",file)
+    if matchJ:
+        J=float(matchJ.group(1))
 
 val0=(len(TValsAll)-len(pklFileNames))**2
 if val0!=0:
@@ -49,7 +52,7 @@ sAvgAll=[]
 chiValAll=[]
 specificHeatAll=[]
 
-lastNum=50000#use the last lastNum configurations
+lastNum=100000#use the last lastNum configurations
 separation=130#separation of the used configurations
 
 for i in range(0,len(pklFileNames)):
@@ -72,10 +75,21 @@ for i in range(0,len(pklFileNames)):
     chiTmp = (meanS2 - meanS ** 2) / T
     chiValAll.append(chiTmp)
 
+    # sLastList=record.sAll[-lastNum::separation]
+    # print(type(sLast[0]))
+    def energy(spins):
+        return -J * (np.sum(spins[:-1, :] * spins[1:, :]) + np.sum(spins[:, :-1] * spins[:, 1:])) \
+            - J * (np.sum(spins[0, :] * spins[-1, :]) + np.sum(spins[:, 0] * spins[:, -1]))
+    procNum=48
+    pool0=Pool(procNum)
+    EretAll=pool0.map(energy,sLast)
+    EretAll=np.array(EretAll)
+
+
     # specific heat
-    EAvgLast = np.array(record.E[-lastNum::separation])
-    meanE = np.mean(EAvgLast)
-    EAvgLast2 = EAvgLast ** 2
+
+    meanE = np.mean(EretAll)
+    EAvgLast2 = EretAll ** 2
     meanE2 = np.mean(EAvgLast2)
     CTmp = (meanE2 - meanE ** 2) / T ** 2
     specificHeatAll.append(CTmp)
@@ -83,7 +97,7 @@ for i in range(0,len(pklFileNames)):
 
 #plot <s> vs T
 fig,ax=plt.subplots()
-ax.plot(TValsAll,sAvgAll,color="black")
+ax.scatter(TValsAll,sAvgAll,color="black")
 plt.xlabel("$T$")
 plt.ylabel("<s>")
 plt.title("Temperature from "+str(TValsAll[0])+" to "+str(TValsAll[-1]))
@@ -101,7 +115,7 @@ plt.close()
 
 # plot chi vs T
 fig,ax=plt.subplots()
-ax.plot(TValsAll,chiValAll,color="red")
+ax.scatter(TValsAll,chiValAll,color="red")
 plt.title("Temperature from "+str(TValsAll[0])+" to "+str(TValsAll[-1]))
 plt.xlabel("$T$")
 plt.ylabel("$\chi$")
@@ -118,7 +132,7 @@ plt.close()
 
 #plot C vs T
 fig,ax=plt.subplots()
-ax.plot(TValsAll,specificHeatAll,color="blue")
+ax.scatter(TValsAll,specificHeatAll,color="blue")
 plt.title("Temperature from "+str(TValsAll[0])+" to "+str(TValsAll[-1]))
 plt.xlabel("$T$")
 plt.ylabel("$C$")
